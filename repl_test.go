@@ -16,7 +16,15 @@ func TestCleanInput(t *testing.T) {
 		},
 		"capitalization": {
 			input:    "Charmander Bulbasaur PIKACHU",
-			expected: []string{"charmander, bulbasaur, pikachu"},
+			expected: []string{"charmander", "bulbasaur", "pikachu"},
+		},
+		"one word split": {
+			input:    " hello    ",
+			expected: []string{"hello"},
+		},
+		"just whitespace": {
+			input:    "   ",
+			expected: []string{},
 		},
 	}
 
@@ -24,7 +32,7 @@ func TestCleanInput(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			actual := cleanInput(tc.input)
 			if !reflect.DeepEqual(tc.expected, actual) {
-				t.Fatalf("expected: %v, actual: %v", tc.expected, actual)
+				t.Fatalf("expected: %#v, actual: %#v", tc.expected, actual)
 			}
 		})
 	}
