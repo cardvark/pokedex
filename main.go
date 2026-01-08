@@ -1,9 +1,7 @@
 package main
 
-import (
-	"fmt"
-)
+var commandMap = map[string]cliCommand{}
 
 func main() {
-	fmt.Println("Hello, World!")
+	startRepl()
 }
