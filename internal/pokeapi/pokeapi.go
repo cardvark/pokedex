@@ -3,6 +3,8 @@ package pokeapi
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/cardvark/pokedex/internal/pokecache"
 )
 
 type locationAreasResp struct {
@@ -16,25 +18,50 @@ type locationAreasResp struct {
 }
 
 func GetLocationAreasResp(url string) (locationAreasResp, error) {
+	// TODO: check if entry exists in cacheMap;
+	// if no, then move on.
+	// if yes, retrieve the entry from the cacheMap
+	// convert the cacheEntry value from bytes into locationAreasResp struct.
+	// declare new locationsAreasResp struct
+	// create
+	// decode
+	// return locAreasResp
+
+	entryBytes, ok := pokecache.MemCache.Get(url)
+	if ok {
+		// fmt.Printf("Retrieving from cache! Raw value: %v\n", entryBytes)
+		var locAreasResp locationAreasResp
+		err := json.Unmarshal(entryBytes, &locAreasResp)
+		return locAreasResp, err
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return locationAreasResp{}, err
 	}
 	defer res.Body.Close()
 
-	var locAreas = locationAreasResp{}
+	var locAreasResp = locationAreasResp{}
 	decoder := json.NewDecoder(res.Body)
 
-	if err := decoder.Decode(&locAreas); err != nil {
+	if err := decoder.Decode(&locAreasResp); err != nil {
 		return locationAreasResp{}, err
 	}
 
-	var locationNames = []string{}
-	for _, res := range locAreas.Results {
-		locationNames = append(locationNames, res.Name)
+	// TODO: put new value into cachemap.
+	// encode using gob to bytes
+	// create a buffer to hold gob-encoded bytes
+	// create an encoder and send the data
+	// extract the bytes
+
+	resultBytes, err := json.Marshal(locAreasResp)
+	if err != nil {
+		return locationAreasResp{}, err
 	}
 
-	return locAreas, nil
+	pokecache.MemCache.Add(url, resultBytes)
+
+	return locAreasResp, nil
 
 }
 

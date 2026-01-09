@@ -39,7 +39,7 @@ func TestGetLocationAreasResp(t *testing.T) {
 			if !reflect.DeepEqual(tc.expectedNext, locAreas.Next) {
 				t.Fatalf("expected: %#v, actual: %#v", tc.expectedNext, locAreas.Next)
 			}
-			if !reflect.DeepEqual(tc.expectedErr, actualErr) {
+			if tc.expectedErr != actualErr {
 				t.Fatalf("expected: %#v, actual: %#v", tc.expectedErr, actualErr)
 			}
 		})

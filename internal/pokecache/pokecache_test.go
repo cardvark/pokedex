@@ -23,12 +23,12 @@ func TestCreateCache(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			cache := NewCache(tc.input)
 
-			if !reflect.DeepEqual(tc.expectedMap, cache.CacheMap) {
-				t.Fatalf("expected: %#v, actual: %#v", tc.expectedMap, cache.CacheMap)
+			if !reflect.DeepEqual(tc.expectedMap, cache.cacheMap) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.expectedMap, cache.cacheMap)
 			}
 
-			if !reflect.DeepEqual(tc.expectedInterval, cache.Interval) {
-				t.Fatalf("expected: %#v, actual: %#v", tc.expectedInterval, cache.Interval)
+			if !reflect.DeepEqual(tc.expectedInterval, cache.interval) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.expectedInterval, cache.interval)
 			}
 		})
 	}
