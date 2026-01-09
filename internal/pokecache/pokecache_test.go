@@ -23,16 +23,77 @@ func TestCreateCache(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			cache := NewCache(tc.input)
 
-			if !reflect.DeepEqual(tc.expectedMap, cache.cacheMap) {
-				t.Fatalf("expected: %#v, actual: %#v", tc.expectedMap, cache.cacheMap)
+			if !reflect.DeepEqual(tc.expectedMap, cache.CacheMap) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.expectedMap, cache.CacheMap)
 			}
 
-			if !reflect.DeepEqual(tc.expectedInterval, cache.interval) {
-				t.Fatalf("expected: %#v, actual: %#v", tc.expectedInterval, cache.interval)
+			if !reflect.DeepEqual(tc.expectedInterval, cache.Interval) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.expectedInterval, cache.Interval)
 			}
 		})
 	}
 
+}
+
+func TestAddGet(t *testing.T) {
+	cases := map[string]struct {
+		inputKey     string
+		inputVal     []byte
+		retrieveKey  string
+		expectedBool bool
+	}{
+		"base test": {
+			inputKey:     "https://example.com",
+			inputVal:     []byte("some data here."),
+			retrieveKey:  "https://example.com",
+			expectedBool: true,
+		},
+		"failed retrieve": {
+			inputKey:     "https://example.com",
+			inputVal:     []byte("some data here."),
+			retrieveKey:  "https://example.coms",
+			expectedBool: false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			cache := NewCache(5 * time.Second)
+			cache.Add(tc.inputKey, tc.inputVal)
+
+			val, ok := cache.Get(tc.retrieveKey)
+
+			if !reflect.DeepEqual(ok, tc.expectedBool) {
+				t.Fatalf("expected: %#v, actual: %#v", ok, tc.expectedBool)
+			}
+
+			if ok && !reflect.DeepEqual(tc.inputVal, val) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.inputVal, val)
+			}
+		})
+	}
+
+}
+
+func TestReapLoop(t *testing.T) {
+	const baseTime = 5 * time.Millisecond
+	const waitTime = baseTime + 5*time.Millisecond
+	cache := NewCache(baseTime)
+	cache.Add("https://example.com", []byte("testdata"))
+
+	_, ok := cache.Get("https://example.com")
+	if !ok {
+		t.Errorf("expected to find key")
+		return
+	}
+
+	time.Sleep(waitTime)
+
+	_, ok = cache.Get("https://example.com")
+	if ok {
+		t.Errorf("expected to not find key")
+		return
+	}
 }
 
 // func Test(t *testing.T) {
