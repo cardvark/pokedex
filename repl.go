@@ -12,7 +12,7 @@ import (
 type CliCommand struct {
 	name        string
 	description string
-	callback    func(*Config) error
+	callback    func(*Config, string) error
 }
 
 type Config struct {
@@ -37,10 +37,18 @@ func startRepl() {
 			line := scanner.Text()
 
 			cleanSlice := cleanInput(line)
+			if len(cleanSlice) < 1 {
+				continue
+			}
+
 			command := cleanSlice[0]
+			paramOne := ""
+			if len(cleanSlice) > 1 {
+				paramOne = cleanSlice[1]
+			}
 
 			if value, ok := getCommands()[command]; ok {
-				err := value.callback(&mapConfig)
+				err := value.callback(&mapConfig, paramOne)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -75,16 +83,39 @@ func getCommands() map[string]CliCommand {
 			description: "Returns to previous 20 areas.",
 			callback:    commandMapb,
 		},
+		"explore": {
+			name:        "explore",
+			description: "Display list of pokemon in a given area",
+			callback:    commandExplore,
+		},
 	}
 }
 
-func commandExit(cfg *Config) error {
+func commandExplore(_ *Config, areaName string) error {
+	fullUrl := locationAreaURL + areaName
+	fmt.Printf("Exploring %s...\n", areaName)
+
+	pokeEncResp, err := pokeapi.GetLocationAreaPokemonEncountersResp(fullUrl)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Found Pokemon:\n")
+
+	for _, pokeStruct := range pokeEncResp.PokemonEncounters {
+		fmt.Printf("- %s\n", pokeStruct.Pokemon.Name)
+	}
+
+	return nil
+}
+
+func commandExit(_ *Config, _ string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(cfg *Config) error {
+func commandHelp(_ *Config, _ string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Printf("Usage:\n\n")
 
@@ -94,7 +125,7 @@ func commandHelp(cfg *Config) error {
 	return nil
 }
 
-func commandMap(cfg *Config) error {
+func commandMap(cfg *Config, _ string) error {
 	if cfg.locAreasNext == "" {
 		return fmt.Errorf("No subsequent area locations.")
 	}
@@ -115,7 +146,7 @@ func commandMap(cfg *Config) error {
 	return nil
 }
 
-func commandMapb(cfg *Config) error {
+func commandMapb(cfg *Config, _ string) error {
 	if cfg.locAreasPrev == "" {
 		fmt.Println("You're on the first page.")
 		return nil
