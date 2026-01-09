@@ -4,9 +4,14 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
+
+	"github.com/cardvark/pokedex/internal/pokecache"
 )
 
 func TestGetLocationAreasResp(t *testing.T) {
+	pokecache.InitGlobalCache(5 * time.Second)
+
 	cases := map[string]struct {
 		input         string
 		expectedSlice []string
