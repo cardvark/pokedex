@@ -20,12 +20,12 @@ type Config struct {
 	locAreasPrev string
 }
 
-const locationAreasURL string = "https://pokeapi.co/api/v2/location-area/"
+const locationAreaURL string = "https://pokeapi.co/api/v2/location-area/"
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	mapConfig := Config{
-		locAreasNext: locationAreasURL,
+		locAreasNext: locationAreaURL,
 		locAreasPrev: "",
 	}
 

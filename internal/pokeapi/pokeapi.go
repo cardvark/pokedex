@@ -7,7 +7,7 @@ import (
 	"github.com/cardvark/pokedex/internal/pokecache"
 )
 
-type locationAreasResp struct {
+type locationAreaResp struct {
 	Count    int    `json:"count"`
 	Next     string `json:"next"`
 	Previous any    `json:"previous"`
@@ -17,46 +17,88 @@ type locationAreasResp struct {
 	} `json:"results"`
 }
 
-func GetLocationAreasResp(url string) (locationAreasResp, error) {
-	// TODO: check if entry exists in cacheMap;
-	// if no, then move on.
-	// if yes, retrieve the entry from the cacheMap
-	// convert the cacheEntry value from bytes into locationAreasResp struct.
-	// declare new locationsAreasResp struct
-	// create
-	// decode
-	// return locAreasResp
+type locationAreaPokemonEncountersResp struct {
+	ID       int `json:"id"`
+	Location struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"location"`
+	Name              string `json:"name"`
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
 
+/*
+
+Order:
+- API call to get an decode the json response into a go struct
+- commandExplore in repl.go to call the GetLocationAreaPokemonResp function and process the resp struct.
+- update API call to cache response.
+
+
+*/
+
+func GetLocationAreaPokemonEncountersResp(url string) (locationAreaPokemonEncountersResp, error) {
+	entryBytes, ok := pokecache.MemCache.Get(url)
+	if ok {
+		var locAreaPokeResp locationAreaPokemonEncountersResp
+		err := json.Unmarshal(entryBytes, &locAreaPokeResp)
+		return locAreaPokeResp, err
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return locationAreaPokemonEncountersResp{}, err
+	}
+	defer res.Body.Close()
+
+	var locAreaPokeResp locationAreaPokemonEncountersResp
+	decoder := json.NewDecoder(res.Body)
+
+	if err := decoder.Decode(&locAreaPokeResp); err != nil {
+		return locationAreaPokemonEncountersResp{}, err
+	}
+
+	resultBytes, err := json.Marshal(locAreaPokeResp)
+	if err != nil {
+		return locationAreaPokemonEncountersResp{}, err
+	}
+
+	pokecache.MemCache.Add(url, resultBytes)
+
+	return locAreaPokeResp, nil
+
+}
+
+func GetLocationAreasResp(url string) (locationAreaResp, error) {
 	entryBytes, ok := pokecache.MemCache.Get(url)
 	if ok {
 		// fmt.Printf("Retrieving from cache! Raw value: %v\n", entryBytes)
-		var locAreasResp locationAreasResp
+		var locAreasResp locationAreaResp
 		err := json.Unmarshal(entryBytes, &locAreasResp)
 		return locAreasResp, err
 	}
 
 	res, err := http.Get(url)
 	if err != nil {
-		return locationAreasResp{}, err
+		return locationAreaResp{}, err
 	}
 	defer res.Body.Close()
 
-	var locAreasResp = locationAreasResp{}
+	var locAreasResp = locationAreaResp{}
 	decoder := json.NewDecoder(res.Body)
 
 	if err := decoder.Decode(&locAreasResp); err != nil {
-		return locationAreasResp{}, err
+		return locationAreaResp{}, err
 	}
-
-	// TODO: put new value into cachemap.
-	// encode using gob to bytes
-	// create a buffer to hold gob-encoded bytes
-	// create an encoder and send the data
-	// extract the bytes
 
 	resultBytes, err := json.Marshal(locAreasResp)
 	if err != nil {
-		return locationAreasResp{}, err
+		return locationAreaResp{}, err
 	}
 
 	pokecache.MemCache.Add(url, resultBytes)
@@ -64,17 +106,3 @@ func GetLocationAreasResp(url string) (locationAreasResp, error) {
 	return locAreasResp, nil
 
 }
-
-/*
-Walk through:
-enter "map" in the terminal.
-	"map" command added to commandMap function.
-	"map" command function created:
-		Calls ...
-
-Get list of areas from poke api, offset.
-first call, offset 0. subsequent calls offset by 20.
-	where am I tracking the offset?
-
-
-*/

@@ -1,7 +1,6 @@
 package pokeapi
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -29,8 +28,8 @@ func TestGetLocationAreasResp(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			locAreas, actualErr := GetLocationAreasResp(tc.input)
-			fmt.Printf("Actual slice: %v\n", locAreas.Results)
-			fmt.Printf("Actual next: %v\n", locAreas.Next)
+			// fmt.Printf("Actual slice: %v\n", locAreas.Results)
+			// fmt.Printf("Actual next: %v\n", locAreas.Next)
 
 			actualSlice := []string{}
 
@@ -46,6 +45,41 @@ func TestGetLocationAreasResp(t *testing.T) {
 			}
 			if tc.expectedErr != actualErr {
 				t.Fatalf("expected: %#v, actual: %#v", tc.expectedErr, actualErr)
+			}
+		})
+	}
+
+}
+
+func TestGetLocAreaPokeResp(t *testing.T) {
+	pokecache.InitGlobalCache(5 * time.Second)
+
+	cases := map[string]struct {
+		input    string
+		expected []string
+	}{
+		"base test": {
+			input:    "https://pokeapi.co/api/v2/location-area/canalave-city-area",
+			expected: []string{"tentacool", "tentacruel", "staryu", "magikarp", "gyarados", "wingull", "pelipper", "shellos", "gastrodon", "finneon", "lumineon"},
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			locAreaPokeEncResp, err := GetLocationAreaPokemonEncountersResp(tc.input)
+
+			pokeList := []string{}
+
+			for _, pokeStruct := range locAreaPokeEncResp.PokemonEncounters {
+				pokeList = append(pokeList, pokeStruct.Pokemon.Name)
+			}
+
+			if err != nil {
+				t.Errorf("Error: %v", err)
+			}
+
+			if !reflect.DeepEqual(tc.expected, pokeList) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.expected, pokeList)
 			}
 		})
 	}
