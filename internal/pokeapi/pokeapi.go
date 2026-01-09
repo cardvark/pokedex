@@ -5,9 +5,7 @@ import (
 	"net/http"
 )
 
-const locationAreaUrl string = "https://pokeapi.co/api/v2/location-area/"
-
-type locationAreas struct {
+type locationAreasResp struct {
 	Count    int    `json:"count"`
 	Next     string `json:"next"`
 	Previous any    `json:"previous"`
@@ -17,18 +15,18 @@ type locationAreas struct {
 	} `json:"results"`
 }
 
-func GetLocationAreaList(url string) (locationAreas, error) {
+func GetLocationAreasResp(url string) (locationAreasResp, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return locationAreas{}, err
+		return locationAreasResp{}, err
 	}
 	defer res.Body.Close()
 
-	var locAreas = locationAreas{}
+	var locAreas = locationAreasResp{}
 	decoder := json.NewDecoder(res.Body)
 
 	if err := decoder.Decode(&locAreas); err != nil {
-		return locationAreas{}, err
+		return locationAreasResp{}, err
 	}
 
 	var locationNames = []string{}

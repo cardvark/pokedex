@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGetLocationAreaList(t *testing.T) {
+func TestGetLocationAreasResp(t *testing.T) {
 	cases := map[string]struct {
 		input         string
 		expectedSlice []string
@@ -23,7 +23,7 @@ func TestGetLocationAreaList(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			locAreas, actualErr := GetLocationAreaList(tc.input)
+			locAreas, actualErr := GetLocationAreasResp(tc.input)
 			fmt.Printf("Actual slice: %v\n", locAreas.Results)
 			fmt.Printf("Actual next: %v\n", locAreas.Next)
 

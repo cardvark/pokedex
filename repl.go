@@ -16,15 +16,18 @@ type CliCommand struct {
 }
 
 type Config struct {
-	next     string
-	previous string
+	locAreasNext string
+	locAreasPrev string
 }
 
 const locationAreasURL string = "https://pokeapi.co/api/v2/location-area/"
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
-	mapConfig := Config{next: locationAreasURL, previous: ""}
+	mapConfig := Config{
+		locAreasNext: locationAreasURL,
+		locAreasPrev: "",
+	}
 
 	for {
 		fmt.Printf("Pokedex > ")
@@ -92,18 +95,18 @@ func commandHelp(cfg *Config) error {
 }
 
 func commandMap(cfg *Config) error {
-	if cfg.next == "" {
+	if cfg.locAreasNext == "" {
 		return fmt.Errorf("No subsequent area locations.")
 	}
 
-	locAreas, err := pokeapi.GetLocationAreaList(cfg.next)
+	locAreas, err := pokeapi.GetLocationAreasResp(cfg.locAreasNext)
 
 	if err != nil {
 		return err
 	}
 
-	cfg.previous = cfg.next
-	cfg.next = locAreas.Next
+	cfg.locAreasPrev = cfg.locAreasNext
+	cfg.locAreasNext = locAreas.Next
 
 	for _, loc := range locAreas.Results {
 		fmt.Println(loc.Name)
@@ -113,12 +116,12 @@ func commandMap(cfg *Config) error {
 }
 
 func commandMapb(cfg *Config) error {
-	if cfg.previous == "" {
+	if cfg.locAreasPrev == "" {
 		fmt.Println("You're on the first page.")
 		return nil
 	}
 
-	locAreas, err := pokeapi.GetLocationAreaList(cfg.previous)
+	locAreas, err := pokeapi.GetLocationAreasResp(cfg.locAreasPrev)
 
 	if err != nil {
 		return err
@@ -128,12 +131,12 @@ func commandMapb(cfg *Config) error {
 	// fmt.Println(prevString)
 
 	if prevString == "<nil>" {
-		cfg.previous = ""
+		cfg.locAreasPrev = ""
 	} else {
-		cfg.previous = prevString
+		cfg.locAreasPrev = prevString
 	}
 
-	cfg.next = locAreas.Next
+	cfg.locAreasNext = locAreas.Next
 
 	for _, loc := range locAreas.Results {
 		fmt.Println(loc.Name)
