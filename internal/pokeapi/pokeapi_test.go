@@ -23,15 +23,21 @@ func TestGetLocationAreaList(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			actualSlice, actualNext, actualErr := getLocationAreaList(tc.input)
-			fmt.Printf("Actual slice: %v\n", actualSlice)
-			fmt.Printf("Actual next: %v\n", actualNext)
+			locAreas, actualErr := GetLocationAreaList(tc.input)
+			fmt.Printf("Actual slice: %v\n", locAreas.Results)
+			fmt.Printf("Actual next: %v\n", locAreas.Next)
+
+			actualSlice := []string{}
+
+			for _, loc := range locAreas.Results {
+				actualSlice = append(actualSlice, loc.Name)
+			}
 
 			if !reflect.DeepEqual(tc.expectedSlice, actualSlice) {
 				t.Fatalf("expected: %#v, actual: %#v", tc.expectedSlice, actualSlice)
 			}
-			if !reflect.DeepEqual(tc.expectedNext, actualNext) {
-				t.Fatalf("expected: %#v, actual: %#v", tc.expectedNext, actualNext)
+			if !reflect.DeepEqual(tc.expectedNext, locAreas.Next) {
+				t.Fatalf("expected: %#v, actual: %#v", tc.expectedNext, locAreas.Next)
 			}
 			if !reflect.DeepEqual(tc.expectedErr, actualErr) {
 				t.Fatalf("expected: %#v, actual: %#v", tc.expectedErr, actualErr)

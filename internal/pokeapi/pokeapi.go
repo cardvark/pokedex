@@ -17,10 +17,10 @@ type locationAreas struct {
 	} `json:"results"`
 }
 
-func getLocationAreaList(url string) ([]string, string, error) {
+func GetLocationAreaList(url string) (locationAreas, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return []string{}, "", err
+		return locationAreas{}, err
 	}
 	defer res.Body.Close()
 
@@ -28,7 +28,7 @@ func getLocationAreaList(url string) ([]string, string, error) {
 	decoder := json.NewDecoder(res.Body)
 
 	if err := decoder.Decode(&locAreas); err != nil {
-		return []string{}, "", err
+		return locationAreas{}, err
 	}
 
 	var locationNames = []string{}
@@ -36,7 +36,7 @@ func getLocationAreaList(url string) ([]string, string, error) {
 		locationNames = append(locationNames, res.Name)
 	}
 
-	return locationNames, locAreas.Next, nil
+	return locAreas, nil
 
 }
 
