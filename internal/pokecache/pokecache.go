@@ -30,16 +30,19 @@ func NewCache(timeDur time.Duration) *Cache {
 }
 
 func (c *Cache) Add(key string, byteVal []byte) {
+	c.Mu.Lock()
 	newCacheEntry := CacheEntry{
 		CreatedAt: time.Now(),
 		Val:       byteVal,
 	}
 	c.CacheMap[key] = newCacheEntry
+	c.Mu.Unlock()
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
+	c.Mu.Lock()
 	entry, ok := c.CacheMap[key]
-
+	c.Mu.Unlock()
 	if !ok {
 		return []byte{}, false
 	}
@@ -51,12 +54,15 @@ func (c *Cache) reapLoop() {
 	defer c.ticker.Stop()
 
 	for range c.ticker.C {
+		c.Mu.Lock()
 		for key, val := range c.CacheMap {
 			t1 := time.Now()
 			createdDuration := t1.Sub(val.CreatedAt)
 			if createdDuration > c.Interval {
+
 				delete(c.CacheMap, key)
 			}
 		}
+		c.Mu.Unlock()
 	}
 }
