@@ -54,12 +54,13 @@ func (c *Cache) reapLoop() {
 	defer c.ticker.Stop()
 
 	for range c.ticker.C {
+		// fmt.Printf("Interval passed at %s! Running reap loop.\n", time.Now().Format("15:04:05.000000"))
 		c.mu.Lock()
 		for key, val := range c.cacheMap {
 			t1 := time.Now()
 			createdDuration := t1.Sub(val.createdAt)
 			if createdDuration > c.interval {
-
+				// fmt.Printf("Interval passed! %v value deleted.\n", key)
 				delete(c.cacheMap, key)
 			}
 		}

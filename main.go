@@ -6,8 +6,7 @@ import (
 	"github.com/cardvark/pokedex/internal/pokecache"
 )
 
-var MemCache = pokecache.NewCache(5 * time.Second)
-
 func main() {
+	pokecache.InitGlobalCache(5 * time.Second)
 	startRepl()
 }

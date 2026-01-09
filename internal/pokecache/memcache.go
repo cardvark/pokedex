@@ -4,4 +4,10 @@ import (
 	"time"
 )
 
-var MemCache = NewCache(5 * time.Second)
+var MemCache *Cache
+
+func InitGlobalCache(interval time.Duration) {
+	if MemCache == nil {
+		MemCache = NewCache(interval)
+	}
+}
