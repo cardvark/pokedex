@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -21,6 +22,7 @@ type Config struct {
 }
 
 const locationAreaURL string = "https://pokeapi.co/api/v2/location-area/"
+const pokemoneURL string = "https://pokeapi.co/api/v2/pokemon/"
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -88,7 +90,34 @@ func getCommands() map[string]CliCommand {
 			description: "Display list of pokemon in a given area",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch",
+			description: "Attempt to catch a pokemon by name",
+			callback:    commandCatch,
+		},
 	}
+}
+
+func commandCatch(_ *Config, pokemonName string) error {
+	fullUrl := pokemoneURL + pokemonName
+	pokemonResp, err := pokeapi.GetPokemonResp(fullUrl)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemonResp.Name)
+
+	baseChance := 45.0
+	randInt := rand.Intn(pokemonResp.BaseExperience)
+	result := baseChance / float64(randInt)
+
+	if result >= 1 {
+		fmt.Printf("%s was caught!\n", pokemonResp.Name)
+	} else {
+		fmt.Printf("%s escaped!\n", pokemonResp.Name)
+	}
+
+	return nil
 }
 
 func commandExplore(_ *Config, areaName string) error {

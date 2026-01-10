@@ -33,6 +33,12 @@ type locationAreaPokemonEncountersResp struct {
 	} `json:"pokemon_encounters"`
 }
 
+type pokemonResp struct {
+	ID             int    `json:"id"`
+	Name           string `json:"name"`
+	BaseExperience int    `json:"base_experience"`
+}
+
 func GetResource[T any](url string) (T, error) {
 	var result T
 
@@ -57,6 +63,10 @@ func GetResource[T any](url string) (T, error) {
 
 	err = json.Unmarshal(dat, &result)
 	return result, err
+}
+
+func GetPokemonResp(url string) (pokemonResp, error) {
+	return GetResource[pokemonResp](url)
 }
 
 func GetLocationAreaPokemonEncountersResp(url string) (locationAreaPokemonEncountersResp, error) {
