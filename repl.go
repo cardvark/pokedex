@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -101,6 +102,10 @@ func getCommands() map[string]CliCommand {
 }
 
 func commandCatch(cfg *Config, pokemonName string) error {
+	if pokemonName == "" {
+		return errors.New("No pokemon name provided.")
+	}
+
 	fullUrl := pokemoneURL + pokemonName
 	pokemon, err := pokeapi.GetPokemon(fullUrl)
 	if err != nil {
