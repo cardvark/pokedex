@@ -17,8 +17,9 @@ type CliCommand struct {
 }
 
 type Config struct {
-	locAreasNext string
-	locAreasPrev string
+	locAreasNext  string
+	locAreasPrev  string
+	caughtPokemon map[string]pokeapi.Pokemon
 }
 
 const locationAreaURL string = "https://pokeapi.co/api/v2/location-area/"
@@ -27,8 +28,9 @@ const pokemoneURL string = "https://pokeapi.co/api/v2/pokemon/"
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	mapConfig := Config{
-		locAreasNext: locationAreaURL,
-		locAreasPrev: "",
+		locAreasNext:  locationAreaURL,
+		locAreasPrev:  "",
+		caughtPokemon: map[string]pokeapi.Pokemon{},
 	}
 
 	for {
@@ -98,23 +100,24 @@ func getCommands() map[string]CliCommand {
 	}
 }
 
-func commandCatch(_ *Config, pokemonName string) error {
+func commandCatch(cfg *Config, pokemonName string) error {
 	fullUrl := pokemoneURL + pokemonName
-	pokemonResp, err := pokeapi.GetPokemonResp(fullUrl)
+	pokemon, err := pokeapi.GetPokemon(fullUrl)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Throwing a Pokeball at %s...\n", pokemonResp.Name)
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
 
 	baseChance := 45.0
-	randInt := rand.Intn(pokemonResp.BaseExperience)
+	randInt := rand.Intn(pokemon.BaseExperience)
 	result := baseChance / float64(randInt)
 
 	if result >= 1 {
-		fmt.Printf("%s was caught!\n", pokemonResp.Name)
+		fmt.Printf("%s was caught!\n", pokemon.Name)
+		cfg.caughtPokemon[pokemon.Name] = pokemon
 	} else {
-		fmt.Printf("%s escaped!\n", pokemonResp.Name)
+		fmt.Printf("%s escaped!\n", pokemon.Name)
 	}
 
 	return nil
