@@ -81,13 +81,14 @@ func GetResource[T any](url string) (T, error) {
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode != http.StatusOK {
+		// fmt.Println(res.StatusCode)
+		return result, errors.New("Resource not found. Please check your spelling and try again.")
+	}
+
 	dat, err := io.ReadAll(res.Body)
 	if err != nil {
 		return result, err
-	}
-
-	if string(dat) == "Not Found" {
-		return result, errors.New("Resource not found. Please check your spelling and try again.")
 	}
 
 	pokecache.MemCache.Add(url, dat)
