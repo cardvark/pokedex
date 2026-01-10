@@ -38,3 +38,6 @@ func TestCleanInput(t *testing.T) {
 	}
 
 }
+
+// TODO: test for command inspect.
+// use caterpie; lower than current baseChance 45.
