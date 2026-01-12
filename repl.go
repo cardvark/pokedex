@@ -117,9 +117,9 @@ func commandInspect(cfg *Config, pokeName string) error {
 		return errors.New("you have not caught that pokemon.")
 	}
 
-	fmt.Println("Name: ", pokemon.Name)
-	fmt.Println("Height: ", pokemon.Height)
-	fmt.Println("Weight: ", pokemon.Weight)
+	fmt.Println("Name:", pokemon.Name)
+	fmt.Println("Height:", pokemon.Height)
+	fmt.Println("Weight:", pokemon.Weight)
 	fmt.Println("Stats:")
 	for _, statStruct := range pokemon.Stats {
 		fmt.Printf("  -%s: %d\n", statStruct.Stat.Name, statStruct.BaseStat)
